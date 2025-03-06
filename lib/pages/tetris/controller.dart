@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:brick_game/controllers/game_details_controller.dart';
+import 'package:brick_game/widgets/block.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
@@ -63,9 +64,9 @@ class TetrisController extends GetxController {
   int count = 0;
   int score = 0;
 
-  List<List<String?>> playfield = List.generate(
+  List<List<BlockType>> playfield = List.generate(
     ROWS + 2,
-    (_) => List.generate(COLS, (_) => null),
+    (_) => List.generate(COLS, (_) => BlockType.empty),
   );
 
   Tetromino tetromino = Tetromino(name: 'I', matrix: tetrominos['I']!, row: -2, col: 3);
@@ -83,7 +84,7 @@ class TetrisController extends GetxController {
 
     playfield = List.generate(
       ROWS + 2,
-      (_) => List.generate(COLS, (_) => null),
+      (_) => List.generate(COLS, (_) => BlockType.empty),
     );
     tetromino = Tetromino(name: 'I', matrix: tetrominos['I']!, row: -2, col: 3);
     tetrominoSequence = [];
@@ -124,6 +125,16 @@ class TetrisController extends GetxController {
     } while (isValidMove(tetromino.matrix, tetromino.row, tetromino.col));
     tetromino.row--;
     placeTetromino();
+    updater.toggle();
+  }
+
+  void shadowOfTetromino() {
+    Tetromino tetr = Tetromino(name: tetromino.name, matrix: tetromino.matrix, row: tetromino.row, col: tetromino.col);
+    do {
+      tetr.row++;
+    } while (isValidMove(tetr.matrix, tetr.row, tetr.col));
+    tetr.row--;
+    placeShadow(tetr);
     updater.toggle();
   }
 
@@ -172,13 +183,44 @@ class TetrisController extends GetxController {
           int newRow = cellRow + row;
           int newCol = cellCol + col;
 
-          if (newCol < 0 || newCol >= COLS || newRow >= ROWS || (newRow >= 0 && playfield[newRow][newCol] != null)) {
+          if (newCol < 0 || newCol >= COLS || newRow >= ROWS || (newRow >= 0 && playfield[newRow][newCol] == BlockType.filled)) {
             return false;
           }
         }
       }
     }
     return true;
+  }
+
+  void placeShadow(Tetromino tetr) {
+    // remove previous shadow
+    for (int i = 0; i < playfield.length; i++) {
+      for (int j = 0; j < playfield[i].length; j++) {
+        if (playfield[i][j] == BlockType.predicted) playfield[i][j] = BlockType.empty;
+      }
+    }
+
+    for (int row = 0; row < tetr.matrix.length; row++) {
+      for (int col = 0; col < tetr.matrix[row].length; col++) {
+        if (tetr.matrix[row][col] != 0) {
+          if (tetr.row + row < 0) {
+            final max = box.read(maxScoreKey);
+            if (max == null || score > max) {
+              box.write(maxScoreKey, score);
+            }
+
+            Get.snackbar("Game over", "Score: $score", snackPosition: SnackPosition.TOP, backgroundColor: Colors.white);
+            gameState = GameState.gameOver;
+            updater.toggle();
+            return;
+          }
+
+          if (tetr.row + row >= 0) {
+            playfield[tetr.row + row][tetr.col + col] = BlockType.predicted;
+          }
+        }
+      }
+    }
   }
 
   void placeTetromino() {
@@ -198,7 +240,7 @@ class TetrisController extends GetxController {
           }
 
           if (tetromino.row + row >= 0) {
-            playfield[tetromino.row + row][tetromino.col + col] = tetromino.name;
+            playfield[tetromino.row + row][tetromino.col + col] = BlockType.filled;
           }
         }
       }
@@ -206,7 +248,7 @@ class TetrisController extends GetxController {
 
     // Clear lines
     for (int row = ROWS - 1; row >= 0;) {
-      if (playfield[row].every((cell) => cell != null)) {
+      if (playfield[row].every((cell) => cell == BlockType.filled)) {
         score++;
         if (score > 5 * speed) {
           speed++;
@@ -225,7 +267,7 @@ class TetrisController extends GetxController {
 
         updater.toggle();
         playfield.removeAt(row);
-        playfield.insert(0, List.generate(COLS, (_) => null));
+        playfield.insert(0, List.generate(COLS, (_) => BlockType.empty));
       } else {
         row--;
       }
@@ -240,6 +282,7 @@ class TetrisController extends GetxController {
     if (count > 20 - speed) {
       count = 0;
       tetromino.row++;
+      shadowOfTetromino();
 
       if (!isValidMove(tetromino.matrix, tetromino.row, tetromino.col)) {
         tetromino.row--;
@@ -268,6 +311,7 @@ class TetrisController extends GetxController {
       }
       tetromino.row = newRow;
     }
+    shadowOfTetromino();
     updater.toggle();
   }
 
@@ -277,6 +321,7 @@ class TetrisController extends GetxController {
     List<List<int>> rotatedMatrix = rotate(tetromino.matrix);
     if (isValidMove(rotatedMatrix, tetromino.row, tetromino.col)) {
       tetromino.matrix = rotatedMatrix;
+      shadowOfTetromino();
       updater.toggle();
     }
   }

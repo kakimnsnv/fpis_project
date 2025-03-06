@@ -16,7 +16,7 @@ class Block extends StatelessWidget {
         color = Colors.black.withValues(alpha: 0.3);
         break;
       case BlockType.predicted:
-        color = Colors.red.withValues(alpha: 0.5);
+        color = Colors.black.withValues(alpha: 0.5);
         break;
     }
 

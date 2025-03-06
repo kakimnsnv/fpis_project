@@ -29,7 +29,7 @@ class TetrisPage extends StatelessWidget {
                 int row = index ~/ COLS;
                 int col = index % COLS;
 
-                String? cellName = controller.playfield[row][col];
+                BlockType cell = controller.playfield[row][col];
 
                 // Add current tetromino to visualization
                 if (controller.gameState != GameState.gameOver) {
@@ -41,11 +41,11 @@ class TetrisPage extends StatelessWidget {
                       tetrominoLocalCol >= 0 &&
                       tetrominoLocalCol < controller.tetromino.matrix[0].length &&
                       controller.tetromino.matrix[tetrominoLocalRow][tetrominoLocalCol] != 0) {
-                    cellName = controller.tetromino.name;
+                    cell = BlockType.filled;
                   }
                 }
 
-                return Block(cellName != null ? BlockType.filled : BlockType.empty);
+                return Block(cell);
               },
             );
           }),
