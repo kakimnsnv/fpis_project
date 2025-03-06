@@ -29,7 +29,6 @@ class GameDetails extends GetView<GameDetailsController> {
               itemCount: 4 * 4,
               itemBuilder: (context, index) => Obx(() {
                 final u = controller.updater.value;
-                print(1);
                 int row = index ~/ 4;
                 int col = index % 4;
 

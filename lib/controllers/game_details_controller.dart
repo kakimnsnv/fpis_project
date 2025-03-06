@@ -12,5 +12,6 @@ class GameDetailsController extends GetxController {
   RxInt currentGoal = 0.obs;
   RxInt level = 1.obs;
   RxInt speed = 1.obs;
+  RxInt lives = 3.obs;
   RxList<RxList<bool>> matrix = List.generate(4, (index) => List.generate(4, (index) => false).obs).obs;
 }

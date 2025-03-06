@@ -1,5 +1,6 @@
 import 'package:brick_game/controllers/display_controller.dart';
 import 'package:brick_game/controllers/game_details_controller.dart';
+import 'package:brick_game/pages/arkanoid/controller.dart';
 import 'package:brick_game/pages/race/controller.dart';
 import 'package:brick_game/pages/snake/controller.dart';
 import 'package:brick_game/pages/tetris/controller.dart';
@@ -34,6 +35,7 @@ class MyApp extends StatelessWidget {
           Get.put(RaceController(), permanent: true);
           Get.put(TetrisController(), permanent: true);
           Get.put(SnakeController(), permanent: true);
+          Get.put(ArkanoidController(), permanent: true);
         },
       ),
       getPages: [

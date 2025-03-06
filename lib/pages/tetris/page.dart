@@ -21,13 +21,13 @@ class TetrisPage extends StatelessWidget {
             return GridView.builder(
               physics: NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: COLS,
+                crossAxisCount: 10,
                 childAspectRatio: 1,
               ),
-              itemCount: ROWS * COLS,
+              itemCount: 25 * 10,
               itemBuilder: (context, index) {
-                int row = index ~/ COLS;
-                int col = index % COLS;
+                int row = index ~/ 10;
+                int col = index % 10;
 
                 BlockType cell = controller.playfield[row][col];
 

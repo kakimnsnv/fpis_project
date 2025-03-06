@@ -1,3 +1,5 @@
+import 'package:brick_game/pages/arkanoid/controller.dart';
+import 'package:brick_game/pages/arkanoid/page.dart';
 import 'package:brick_game/pages/race/controller.dart';
 import 'package:brick_game/pages/snake/controller.dart';
 import 'package:brick_game/pages/tetris/controller.dart';
@@ -29,7 +31,7 @@ class DisplayController extends GetxController {
         return LeaderBoardPage();
       case PageType.tetris:
         controlls.value = controlls.value.tetris;
-        return TetrisPage(); // TODO: remove
+        return TetrisPage();
       case PageType.settings:
         controlls.value = controlls.value.settings;
         return MenuPage(); // TODO: remove
@@ -38,7 +40,7 @@ class DisplayController extends GetxController {
         return SnakePage();
       case PageType.arkanoid:
         controlls.value = controlls.value.arkanoid;
-        return MenuPage(); // TODO: remove
+        return ArkanoidPage();
       case PageType.race:
         controlls.value = controlls.value.race;
         return RacePage();
@@ -75,12 +77,14 @@ class Controlls {
   DisplayController? displayController;
   TetrisController? tetrisController;
   SnakeController? snakeController;
+  ArkanoidController? arkanoidController;
 
   setup() {
     raceController ??= Get.find<RaceController>();
     displayController ??= Get.find<DisplayController>();
     tetrisController ??= Get.find<TetrisController>();
     snakeController ??= Get.find<SnakeController>();
+    arkanoidController ??= Get.find<ArkanoidController>();
   }
 
   Controlls get menu {
@@ -188,12 +192,23 @@ class Controlls {
       },
       onRotate: null,
       onStart: () {
-        snakeController?.startGame();
+        switch (snakeController?.gameState ?? GameState.initial) {
+          case GameState.initial || GameState.gameOver:
+            snakeController?.init();
+            snakeController?.startGame();
+            break;
+          case GameState.playing:
+            snakeController?.gameState = GameState.paused;
+            break;
+          case GameState.paused:
+            snakeController?.gameState = GameState.playing;
+            break;
+        }
       },
       onSound: null,
       onSettings: null,
       onExit: () {
-        // Pause
+        snakeController?.gameState = GameState.paused;
         displayController?.changePage(PageType.menu);
       },
     );
@@ -204,10 +219,27 @@ class Controlls {
     return Controlls(
       onUp: null,
       onDown: null,
-      onLeft: null,
-      onRight: null,
+      onLeft: () {
+        arkanoidController?.movePaddle(-1);
+      },
+      onRight: () {
+        arkanoidController?.movePaddle(1);
+      },
       onRotate: null,
-      onStart: null,
+      onStart: () {
+        switch (arkanoidController?.gameState ?? GameState.initial) {
+          case GameState.initial || GameState.gameOver:
+            arkanoidController?.init();
+            arkanoidController?.startGame();
+            break;
+          case GameState.playing:
+            arkanoidController?.gameState = GameState.paused;
+            break;
+          case GameState.paused:
+            arkanoidController?.gameState = GameState.playing;
+            break;
+        }
+      },
       onSound: null,
       onSettings: null,
       onExit: () {
@@ -219,15 +251,35 @@ class Controlls {
   Controlls get race {
     setup();
     return Controlls(
-      onUp: raceController?.onUp.call,
-      onDown: raceController?.onDown.call,
-      onLeft: raceController?.onLeft.call,
-      onRight: raceController?.onRight.call,
-      onRotate: raceController?.onRotate.call,
-      onStart: raceController?.onStartButton.call,
+      onUp: null,
+      onDown: null,
+      onLeft: () {
+        raceController?.movePlayerCar(-1);
+      },
+      onRight: () {
+        raceController?.movePlayerCar(1);
+      },
+      onRotate: () {},
+      onStart: () {
+        switch (raceController?.gameState ?? GameState.initial) {
+          case GameState.initial || GameState.gameOver:
+            raceController?.init();
+            raceController?.startGame();
+            break;
+          case GameState.playing:
+            raceController?.gameState = GameState.paused;
+            break;
+          case GameState.paused:
+            raceController?.gameState = GameState.playing;
+            break;
+        }
+      },
       onSound: () {},
-      onSettings: () => displayController?.changePage(PageType.settings),
-      onExit: () => displayController?.changePage(PageType.menu),
+      // onSettings: () => displayController?.changePage(PageType.settings),
+      onExit: () {
+        raceController?.gameState = GameState.paused;
+        displayController?.changePage(PageType.menu);
+      },
     );
   }
 }
