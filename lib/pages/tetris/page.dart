@@ -29,7 +29,6 @@ class TetrisPage extends StatelessWidget {
                 int row = index ~/ COLS;
                 int col = index % COLS;
 
-                Color? cellColor;
                 String? cellName = controller.playfield[row][col];
 
                 // Add current tetromino to visualization
@@ -45,8 +44,6 @@ class TetrisPage extends StatelessWidget {
                     cellName = controller.tetromino.name;
                   }
                 }
-
-                cellColor = cellName != null ? colors[cellName] : null;
 
                 return Block(cellName != null ? BlockType.filled : BlockType.empty);
               },

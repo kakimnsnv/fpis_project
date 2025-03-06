@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:brick_game/controllers/game_details_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
 const int ROWS = 25;
 const int COLS = 10;
-final int speed = 2;
 
 const Map<String, List<List<int>>> tetrominos = {
   'I': [
@@ -46,23 +47,21 @@ const Map<String, List<List<int>>> tetrominos = {
   ],
 };
 
-// Color mapping for tetrominoes
-const Map<String, Color> colors = {
-  'I': Colors.cyan,
-  'O': Colors.yellow,
-  'T': Colors.purple,
-  'S': Colors.green,
-  'Z': Colors.red,
-  'J': Colors.blue,
-  'L': Colors.orange,
-};
-
 class TetrisController extends GetxController {
+  static const String maxScoreKey = "tetris_score_max";
+  static const String speedKey = "tetris_speed";
+  static const String goalKey = "tetris_goal";
+
   static TetrisController get find => Get.find();
+  GameDetailsController gameDetailsController = Get.find();
+  final box = GetStorage();
 
   RxBool updater = false.obs;
 
   GameState gameState = GameState.initial;
+  int speed = 1;
+  int count = 0;
+  int score = 0;
 
   List<List<String?>> playfield = List.generate(
     ROWS + 2,
@@ -71,9 +70,17 @@ class TetrisController extends GetxController {
 
   Tetromino tetromino = Tetromino(name: 'I', matrix: tetrominos['I']!, row: -2, col: 3);
   List<String> tetrominoSequence = [];
-  int count = 0;
 
-  void startGame() {
+  init() {
+    box.writeIfNull(maxScoreKey, 0);
+    box.writeIfNull(goalKey, 2);
+    box.writeIfNull(speedKey, 1);
+
+    gameDetailsController.hiScore.value = box.read(maxScoreKey);
+    gameDetailsController.goal.value = box.read(goalKey);
+    speed = box.read(speedKey);
+    gameDetailsController.speed.value = speed;
+
     playfield = List.generate(
       ROWS + 2,
       (_) => List.generate(COLS, (_) => null),
@@ -81,9 +88,13 @@ class TetrisController extends GetxController {
     tetromino = Tetromino(name: 'I', matrix: tetrominos['I']!, row: -2, col: 3);
     tetrominoSequence = [];
     count = 0;
-    gameState = GameState.playing;
-
+    score = 0;
+    gameState = GameState.initial;
     tetromino = getNextTetromino();
+  }
+
+  void startGame() {
+    gameState = GameState.playing;
     Timer.periodic(
       Duration(milliseconds: 100),
       (timer) {
@@ -107,8 +118,17 @@ class TetrisController extends GetxController {
     return min + Random().nextInt(max - min + 1);
   }
 
+  void onUp() {
+    do {
+      tetromino.row++;
+    } while (isValidMove(tetromino.matrix, tetromino.row, tetromino.col));
+    tetromino.row--;
+    placeTetromino();
+    updater.toggle();
+  }
+
   void generateSequence() {
-    tetrominoSequence.clear();
+    // tetrominoSequence.clear();
     List<String> sequence = ['I', 'J', 'L', 'O', 'S', 'T', 'Z'];
 
     while (sequence.isNotEmpty) {
@@ -119,11 +139,14 @@ class TetrisController extends GetxController {
   }
 
   Tetromino getNextTetromino() {
-    if (tetrominoSequence.isEmpty) {
+    if (tetrominoSequence.length < 2) {
       generateSequence();
     }
 
     String name = tetrominoSequence.removeLast();
+    gameDetailsController.matrix = tetrominos[tetrominoSequence.last]!.map((e) => e.map((ee) => ee == 1).toList().obs).toList().obs;
+    gameDetailsController.updater.toggle();
+
     List<List<int>> matrix = tetrominos[name]!;
 
     int col = (COLS / 2 - (matrix[0].length / 2)).floor();
@@ -163,7 +186,12 @@ class TetrisController extends GetxController {
       for (int col = 0; col < tetromino.matrix[row].length; col++) {
         if (tetromino.matrix[row][col] != 0) {
           if (tetromino.row + row < 0) {
-            // TODO: add here saving points
+            final max = box.read(maxScoreKey);
+            if (max == null || score > max) {
+              box.write(maxScoreKey, score);
+            }
+
+            Get.snackbar("Game over", "Score: $score", snackPosition: SnackPosition.TOP, backgroundColor: Colors.white);
             gameState = GameState.gameOver;
             updater.toggle();
             return;
@@ -179,9 +207,24 @@ class TetrisController extends GetxController {
     // Clear lines
     for (int row = ROWS - 1; row >= 0;) {
       if (playfield[row].every((cell) => cell != null)) {
-        // Remove the line
+        score++;
+        if (score > 5 * speed) {
+          speed++;
+          if (speed >= 10) {
+            speed = 10;
+          }
+          gameDetailsController.speed.value = speed;
+          box.write(speedKey, speed);
+        }
+        gameDetailsController.score.value = score;
+        gameDetailsController.currentGoal.value = score;
+        if (gameDetailsController.goal.value == score) {
+          gameDetailsController.goal.value *= 2;
+          box.write(goalKey, gameDetailsController.goal.value);
+        }
+
+        updater.toggle();
         playfield.removeAt(row);
-        // Add a new empty line at the top
         playfield.insert(0, List.generate(COLS, (_) => null));
       } else {
         row--;
@@ -194,7 +237,7 @@ class TetrisController extends GetxController {
 
   void updateGame() {
     count++;
-    if (count > speed) {
+    if (count > 20 - speed) {
       count = 0;
       tetromino.row++;
 

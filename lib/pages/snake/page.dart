@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:brick_game/pages/game_details.dart';
+import 'package:brick_game/widgets/block.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -18,37 +21,33 @@ class SnakePage extends StatelessWidget {
           width: MediaQuery.of(context).size.width / 2.36,
           child: Obx(() {
             final bool u = controller.updater.value;
+
+            List<List<BlockType>> grid = List.generate(
+              SnakeController.gridHeight,
+              (i) => List.generate(
+                SnakeController.gridWidth,
+                (j) => BlockType.empty,
+              ),
+            );
+
+            for (int i = 0; i < controller.snakeCells.length; i++) {
+              final Point<int> cell = controller.snakeCells[i];
+              grid[cell.y][cell.x] = BlockType.filled;
+            }
+
+            grid[controller.apple.y][controller.apple.x] = BlockType.filled;
+
             return GridView.builder(
               physics: NeverScrollableScrollPhysics(),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: COLS,
+                crossAxisCount: SnakeController.gridWidth,
                 childAspectRatio: 1,
               ),
-              itemCount: ROWS * COLS,
+              itemCount: grid.length * grid[0].length,
               itemBuilder: (context, index) {
-                int row = index ~/ COLS;
-                int col = index % COLS;
-
-                Color? cellColor;
-                String? cellName = controller.playfield[row][col];
-
-                // Add current tetromino to visualization
-                if (controller.gameState != GameState.gameOver) {
-                  int tetrominoLocalRow = row - controller.tetromino.row;
-                  int tetrominoLocalCol = col - controller.tetromino.col;
-
-                  if (tetrominoLocalRow >= 0 &&
-                      tetrominoLocalRow < controller.tetromino.matrix.length &&
-                      tetrominoLocalCol >= 0 &&
-                      tetrominoLocalCol < controller.tetromino.matrix[0].length &&
-                      controller.tetromino.matrix[tetrominoLocalRow][tetrominoLocalCol] != 0) {
-                    cellName = controller.tetromino.name;
-                  }
-                }
-
-                cellColor = cellName != null ? colors[cellName] : null;
-
-                return Block(cellName != null ? BlockType.filled : BlockType.empty);
+                return Block(
+                  grid[index ~/ SnakeController.gridWidth][index % SnakeController.gridWidth],
+                );
               },
             );
           }),

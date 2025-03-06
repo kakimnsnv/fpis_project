@@ -1,4 +1,5 @@
 import 'package:brick_game/controllers/display_controller.dart';
+import 'package:brick_game/controllers/game_details_controller.dart';
 import 'package:brick_game/pages/race/controller.dart';
 import 'package:brick_game/pages/snake/controller.dart';
 import 'package:brick_game/pages/tetris/controller.dart';
@@ -6,8 +7,11 @@ import 'package:brick_game/widgets/controls.dart';
 import 'package:brick_game/widgets/display.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 
-void main() {
+void main() async {
+  await GetStorage.init();
+
   runApp(const MyApp());
 }
 
@@ -26,6 +30,7 @@ class MyApp extends StatelessWidget {
       initialBinding: BindingsBuilder(
         () {
           Get.lazyPut(() => DisplayController(), fenix: true);
+          Get.put(GameDetailsController(), permanent: true);
           Get.put(RaceController(), permanent: true);
           Get.put(TetrisController(), permanent: true);
           Get.put(SnakeController(), permanent: true);

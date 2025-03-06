@@ -1,4 +1,5 @@
 import 'package:brick_game/pages/race/controller.dart';
+import 'package:brick_game/pages/snake/controller.dart';
 import 'package:brick_game/pages/tetris/controller.dart';
 import 'package:brick_game/pages/leader_board/page.dart';
 import 'package:brick_game/pages/menu/page.dart';
@@ -73,15 +74,17 @@ class Controlls {
   RaceController? raceController;
   DisplayController? displayController;
   TetrisController? tetrisController;
+  SnakeController? snakeController;
 
   setup() {
-    raceController = Get.find<RaceController>();
-    displayController = Get.find<DisplayController>();
-    tetrisController = Get.find<TetrisController>();
+    raceController ??= Get.find<RaceController>();
+    displayController ??= Get.find<DisplayController>();
+    tetrisController ??= Get.find<TetrisController>();
+    snakeController ??= Get.find<SnakeController>();
   }
 
   Controlls get menu {
-    if (raceController == null || displayController == null) setup();
+    setup();
     return Controlls(
       onUp: null,
       onDown: null,
@@ -96,7 +99,7 @@ class Controlls {
   }
 
   Controlls get leaderBoard {
-    if (raceController == null || displayController == null) setup();
+    setup();
     return Controlls(
       onUp: null,
       onDown: null,
@@ -113,7 +116,7 @@ class Controlls {
   }
 
   Controlls get settings {
-    if (raceController == null || displayController == null) setup();
+    setup();
     return Controlls(
       onUp: null,
       onDown: null,
@@ -128,9 +131,11 @@ class Controlls {
   }
 
   Controlls get tetris {
-    if (raceController == null || displayController == null) setup();
+    setup();
     return Controlls(
-      onUp: () {},
+      onUp: () {
+        tetrisController?.onUp();
+      },
       onDown: () {
         tetrisController?.moveTetromino(0, 1);
       },
@@ -146,6 +151,7 @@ class Controlls {
       onStart: () {
         switch (tetrisController?.gameState ?? GameState.initial) {
           case GameState.initial || GameState.gameOver:
+            tetrisController?.init();
             tetrisController?.startGame();
             break;
           case GameState.playing:
@@ -166,24 +172,35 @@ class Controlls {
   }
 
   Controlls get snake {
-    if (raceController == null || displayController == null) setup();
+    setup();
     return Controlls(
-      onUp: null,
-      onDown: null,
-      onLeft: null,
-      onRight: null,
+      onUp: () {
+        snakeController?.onUp();
+      },
+      onDown: () {
+        snakeController?.onDown();
+      },
+      onLeft: () {
+        snakeController?.onLeft();
+      },
+      onRight: () {
+        snakeController?.onRight();
+      },
       onRotate: null,
-      onStart: null,
+      onStart: () {
+        snakeController?.startGame();
+      },
       onSound: null,
       onSettings: null,
       onExit: () {
+        // Pause
         displayController?.changePage(PageType.menu);
       },
     );
   }
 
   Controlls get arkanoid {
-    if (raceController == null || displayController == null) setup();
+    setup();
     return Controlls(
       onUp: null,
       onDown: null,
@@ -200,7 +217,7 @@ class Controlls {
   }
 
   Controlls get race {
-    if (raceController == null || displayController == null) setup();
+    setup();
     return Controlls(
       onUp: raceController?.onUp.call,
       onDown: raceController?.onDown.call,
