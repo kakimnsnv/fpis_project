@@ -1,4 +1,6 @@
 import 'package:brick_game/controllers/display_controller.dart';
+import 'package:brick_game/services/api_service.dart';
+import 'package:brick_game/services/dto.dart';
 import 'package:brick_game/widgets/block.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -11,7 +13,7 @@ class MenuPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      spacing: 20,
+      spacing: 15,
       children: [
         Text(
           "BRICK GAME",
@@ -25,27 +27,37 @@ class MenuPage extends StatelessWidget {
             newMenuButton("LEADER\nBOARD", () => displayController.changePage(PageType.leaderBoard)),
           ],
         ),
+        if (Get.find<ApiService>().isAdmin)
+          Row(
+            children: [
+              newGameButton("ADMIN PANEL", () => displayController.changePage(PageType.admin)),
+            ],
+          ),
         Spacer(),
-        Row(
-          children: [
-            newGameButton("RACE", () => displayController.changePage(PageType.race)),
-          ],
-        ),
-        Row(
-          children: [
-            newGameButton("TETRIS", () => displayController.changePage(PageType.tetris)),
-          ],
-        ),
-        Row(
-          children: [
-            newGameButton("SNAKE", () => displayController.changePage(PageType.snake)),
-          ],
-        ),
-        Row(
-          children: [
-            newGameButton("ARKANOID", () => displayController.changePage(PageType.arkanoid)),
-          ],
-        ),
+        if (Get.find<ApiService>().games.firstWhere((el) => el.name == "Race", orElse: () => Game(id: '', name: '', sound: '')).name != "")
+          Row(
+            children: [
+              newGameButton("RACE", () => displayController.changePage(PageType.race)),
+            ],
+          ),
+        if (Get.find<ApiService>().games.firstWhere((el) => el.name == "Tetris", orElse: () => Game(id: '', name: '', sound: '')).name != "")
+          Row(
+            children: [
+              newGameButton("TETRIS", () => displayController.changePage(PageType.tetris)),
+            ],
+          ),
+        if (Get.find<ApiService>().games.firstWhere((el) => el.name == "Snake", orElse: () => Game(id: '', name: '', sound: '')).name != "")
+          Row(
+            children: [
+              newGameButton("SNAKE", () => displayController.changePage(PageType.snake)),
+            ],
+          ),
+        if (Get.find<ApiService>().games.firstWhere((el) => el.name == "Arkanoid", orElse: () => Game(id: '', name: '', sound: '')).name != "")
+          Row(
+            children: [
+              newGameButton("ARKANOID", () => displayController.changePage(PageType.arkanoid)),
+            ],
+          ),
         Spacer(),
       ],
     );

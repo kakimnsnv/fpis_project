@@ -4,6 +4,7 @@ import 'package:brick_game/pages/arkanoid/controller.dart';
 import 'package:brick_game/pages/race/controller.dart';
 import 'package:brick_game/pages/snake/controller.dart';
 import 'package:brick_game/pages/tetris/controller.dart';
+import 'package:brick_game/services/api_service.dart';
 import 'package:brick_game/widgets/controls.dart';
 import 'package:brick_game/widgets/display.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
       initialBinding: BindingsBuilder(
         () {
           Get.lazyPut(() => DisplayController(), fenix: true);
+          Get.put(ApiService());
           Get.put(GameDetailsController(), permanent: true);
           Get.put(RaceController(), permanent: true);
           Get.put(TetrisController(), permanent: true);

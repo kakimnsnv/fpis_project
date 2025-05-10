@@ -433,6 +433,7 @@ import 'dart:math';
 
 import 'package:brick_game/controllers/game_details_controller.dart';
 import 'package:brick_game/pages/tetris/controller.dart';
+import 'package:brick_game/services/api_service.dart';
 import 'package:brick_game/widgets/block.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -750,6 +751,7 @@ class ArkanoidController extends GetxController {
     Get.snackbar("Game Over", "Score: $score", snackPosition: SnackPosition.TOP, backgroundColor: Colors.white);
 
     gameState = GameState.gameOver;
+    Get.find<ApiService>().createScore("Arkanoid", score);
     updater.toggle();
   }
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:brick_game/controllers/game_details_controller.dart';
+import 'package:brick_game/services/api_service.dart';
 import 'package:brick_game/widgets/block.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -178,6 +179,7 @@ class TetrisController extends GetxController {
 
             Get.snackbar("Game over", "Score: $score", snackPosition: SnackPosition.TOP, backgroundColor: Colors.white);
             gameState = GameState.gameOver;
+            Get.find<ApiService>().createScore("Tetris", score);
             updater.toggle();
             return;
           }

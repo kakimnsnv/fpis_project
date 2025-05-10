@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:brick_game/controllers/game_details_controller.dart';
 import 'package:brick_game/pages/tetris/controller.dart';
+import 'package:brick_game/services/api_service.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
@@ -139,6 +140,7 @@ class SnakeController extends GetxController {
           box.write(maxScoreKey, gameDetailsController.score.value);
         }
         gameState = GameState.gameOver;
+        Get.find<ApiService>().createScore("Snake", gameDetailsController.score.value);
         updater.toggle();
         break;
       }

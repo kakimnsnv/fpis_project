@@ -1,6 +1,16 @@
+import 'package:brick_game/pages/admin/add_game/add_game_page.dart';
+import 'package:brick_game/pages/admin/game_settings/arkanoid_settings_page.dart';
+import 'package:brick_game/pages/admin/game_settings/race_settings_page.dart';
+import 'package:brick_game/pages/admin/game_settings/snake_settings_page.dart';
+import 'package:brick_game/pages/admin/game_settings/tetris_settings_page.dart';
+import 'package:brick_game/pages/admin/page.dart';
+import 'package:brick_game/pages/admin/users/users_page.dart';
 import 'package:brick_game/pages/arkanoid/controller.dart';
 import 'package:brick_game/pages/arkanoid/page.dart';
+import 'package:brick_game/pages/auth/auth_page.dart';
+import 'package:brick_game/pages/login/login_page.dart';
 import 'package:brick_game/pages/race/controller.dart';
+import 'package:brick_game/pages/register/register_page.dart';
 import 'package:brick_game/pages/snake/controller.dart';
 import 'package:brick_game/pages/tetris/controller.dart';
 import 'package:brick_game/pages/leader_board/page.dart';
@@ -8,6 +18,7 @@ import 'package:brick_game/pages/menu/page.dart';
 import 'package:brick_game/pages/race/page.dart';
 import 'package:brick_game/pages/snake/page.dart';
 import 'package:brick_game/pages/tetris/page.dart';
+import 'package:brick_game/services/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -23,6 +34,39 @@ class DisplayController extends GetxController {
 
   Widget getContent() {
     switch (PageType.values[currentPage.value]) {
+      case PageType.musicSettings:
+        controlls.value = controlls.value.addGame;
+        return AddGamePage();
+      case PageType.tetrisSettings:
+        controlls.value = controlls.value.tetrisSettings;
+        return TetrisSettingsPage();
+      case PageType.raceSettings:
+        controlls.value = controlls.value.raceSettings;
+        return RaceSettingsPage();
+      case PageType.snakeSettings:
+        controlls.value = controlls.value.snakeSettings;
+        return SnakeSettingsPage();
+      case PageType.arkanoidSettings:
+        controlls.value = controlls.value.arkanoidSettings;
+        return ArkanoidSettingsPage();
+      case PageType.users:
+        controlls.value = controlls.value.users;
+        return UsersPage();
+      case PageType.addGame:
+        controlls.value = controlls.value.addGame;
+        return AddGamePage();
+      case PageType.admin:
+        controlls.value = controlls.value.admin;
+        return AdminPage();
+      case PageType.auth:
+        controlls.value = controlls.value.auth;
+        return AuthPage();
+      case PageType.login:
+        controlls.value = controlls.value.login;
+        return LoginPage();
+      case PageType.register:
+        controlls.value = controlls.value.register;
+        return RegisterPage();
       case PageType.menu:
         controlls.value = controlls.value.menu;
         return MenuPage();
@@ -48,7 +92,26 @@ class DisplayController extends GetxController {
   }
 }
 
-enum PageType { menu, leaderBoard, settings, tetris, snake, arkanoid, race }
+enum PageType {
+  auth,
+  login,
+  register,
+  menu,
+  leaderBoard,
+  settings,
+  tetris,
+  snake,
+  arkanoid,
+  race,
+  admin,
+  users,
+  addGame,
+  tetrisSettings,
+  arkanoidSettings,
+  raceSettings,
+  snakeSettings,
+  musicSettings,
+}
 
 class Controlls {
   final Function()? onUp;
@@ -98,7 +161,9 @@ class Controlls {
       onStart: null,
       onSound: null,
       onSettings: null,
-      onExit: null,
+      onExit: () {
+        Get.find<ApiService>().logout();
+      },
     );
   }
 
@@ -115,6 +180,174 @@ class Controlls {
       onSettings: null,
       onExit: () {
         displayController?.changePage(PageType.menu);
+      },
+    );
+  }
+
+  Controlls get auth {
+    setup();
+    return Controlls(
+      onUp: null,
+      onDown: null,
+      onLeft: null,
+      onRight: null,
+      onRotate: null,
+      onStart: null,
+      onSound: null,
+      onSettings: null,
+      onExit: () {},
+    );
+  }
+
+  Controlls get admin {
+    setup();
+    return Controlls(
+      onUp: null,
+      onDown: null,
+      onLeft: null,
+      onRight: null,
+      onRotate: null,
+      onStart: null,
+      onSound: null,
+      onSettings: null,
+      onExit: () {
+        displayController?.changePage(PageType.menu);
+      },
+    );
+  }
+
+  Controlls get addGame {
+    setup();
+    return Controlls(
+      onUp: null,
+      onDown: null,
+      onLeft: null,
+      onRight: null,
+      onRotate: null,
+      onStart: null,
+      onSound: null,
+      onSettings: null,
+      onExit: () {
+        displayController?.changePage(PageType.admin);
+      },
+    );
+  }
+
+  Controlls get users {
+    setup();
+    return Controlls(
+      onUp: null,
+      onDown: null,
+      onLeft: null,
+      onRight: null,
+      onRotate: null,
+      onStart: null,
+      onSound: null,
+      onSettings: null,
+      onExit: () {
+        displayController?.changePage(PageType.admin);
+      },
+    );
+  }
+
+  Controlls get tetrisSettings {
+    setup();
+    return Controlls(
+      onUp: null,
+      onDown: null,
+      onLeft: null,
+      onRight: null,
+      onRotate: null,
+      onStart: null,
+      onSound: null,
+      onSettings: null,
+      onExit: () {
+        displayController?.changePage(PageType.admin);
+      },
+    );
+  }
+
+  Controlls get raceSettings {
+    setup();
+    return Controlls(
+      onUp: null,
+      onDown: null,
+      onLeft: null,
+      onRight: null,
+      onRotate: null,
+      onStart: null,
+      onSound: null,
+      onSettings: null,
+      onExit: () {
+        displayController?.changePage(PageType.admin);
+      },
+    );
+  }
+
+  Controlls get snakeSettings {
+    setup();
+    return Controlls(
+      onUp: null,
+      onDown: null,
+      onLeft: null,
+      onRight: null,
+      onRotate: null,
+      onStart: null,
+      onSound: null,
+      onSettings: null,
+      onExit: () {
+        displayController?.changePage(PageType.admin);
+      },
+    );
+  }
+
+  Controlls get arkanoidSettings {
+    setup();
+    return Controlls(
+      onUp: null,
+      onDown: null,
+      onLeft: null,
+      onRight: null,
+      onRotate: null,
+      onStart: null,
+      onSound: null,
+      onSettings: null,
+      onExit: () {
+        displayController?.changePage(PageType.admin);
+      },
+    );
+  }
+
+  Controlls get login {
+    setup();
+    return Controlls(
+      onUp: null,
+      onDown: null,
+      onLeft: null,
+      onRight: null,
+      onRotate: null,
+      onStart: null,
+      onSound: null,
+      onSettings: null,
+      onExit: () {
+        displayController?.changePage(PageType.auth);
+      },
+    );
+  }
+
+  Controlls get register {
+    setup();
+    return Controlls(
+      onUp: null,
+      onDown: null,
+      onLeft: null,
+      onRight: null,
+      onRotate: null,
+      onStart: null,
+      onSound: null,
+      onSettings: null,
+      onExit: () {
+        displayController?.changePage(PageType.auth);
       },
     );
   }
